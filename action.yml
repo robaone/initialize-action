@@ -25,7 +25,7 @@ runs:
     - name: Checkout action repository
       uses: actions/checkout@v4
       with:
-        repository: ${{ github.action_repository }}
+        repository: robaone/initialize-action
         path: .github/actions/initialize-action
     - name: Make scripts executable
       shell: bash
