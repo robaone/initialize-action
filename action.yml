@@ -19,8 +19,6 @@ outputs:
     description: "List of changed files"
     value: ${{ steps.files.outputs.all_changed_files }}
 
-env:
-  PROJECT_ROOT: ${{ inputs.project-root }}
 runs:
   using: "composite"
   steps:
@@ -52,7 +50,8 @@ runs:
         echo "## Modified Files"
         cat modified_files.txt
         cat modified_files.txt | ./scripts/parse_file_list_for_projects.sh > project_list.txt
-
+      env:
+        PROJECT_ROOT: ${{ inputs.project-root }}
     - name: Set Dynamic Matrix
       id: setmatrix
       shell: bash
@@ -63,3 +62,5 @@ runs:
         echo "## Matrix Object"
         echo "$matrixStringifiedObject"
         echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+      env:
+        PROJECT_ROOT: ${{ inputs.project-root }}
