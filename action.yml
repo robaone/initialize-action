@@ -1,0 +1,59 @@
+name: 'Initialize Action'
+description: 'Sets up the environment, cancels previous runs, and generates a project matrix'
+
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '20.x'
+
+outputs:
+  matrix:
+    description: "The project matrix for subsequent jobs"
+    value: ${{ steps.setmatrix.outputs.matrix }}
+  files:
+    description: "List of changed files"
+    value: ${{ steps.files.outputs.all_changed_files }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+    
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.12.1
+      with:
+        access_token: ${{ github.token }}
+    
+    - name: Print all github variables
+      shell: bash
+      run: echo "$JSON"
+      env:
+        JSON: ${{ toJson(github) }}
+    
+    - uses: actions/checkout@v4
+    
+    - id: files
+      uses: tj-actions/changed-files@v45.0.0
+    
+    - name: List files modified
+      id: project_list
+      shell: bash
+      run: |
+        echo ${{ steps.files.outputs.all_changed_files }} | sed -E 's/ /\n/g' > modified_files.txt
+        echo "## Modified Files"
+        cat modified_files.txt
+        cat modified_files.txt | ./scripts/parse_file_list_for_projects.sh > project_list.txt
+    
+    - name: Set Dynamic Matrix
+      id: setmatrix
+      shell: bash
+      run: |
+        echo "## Project List"
+        cat project_list.txt
+        matrixStringifiedObject="$(cat project_list.txt | ./scripts/generate_matrix.sh)"
+        echo "## Matrix Object"
+        echo "$matrixStringifiedObject"
+        echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
