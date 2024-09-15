@@ -1,0 +1,30 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - feature/*
+      - main
+
+jobs:
+  call-initialize:
+    uses: robaone/initialize-action@v0.1.0
+    with:
+      node-version: '20.x'
+
+  unit-tests:
+    needs: [call-initialize]
+    strategy:
+      matrix: ${{ fromJson(needs.call-initialize.outputs.matrix) }}
+    # ... rest of the job remains the same
+
+  feature-tests:
+    needs: [call-initialize]
+    strategy:
+      matrix: ${{ fromJson(needs.call-initialize.outputs.matrix) }}
+    # ... rest of the job remains the same
+
+  # ... other jobs remain the same, but update 'needs' and matrix references
