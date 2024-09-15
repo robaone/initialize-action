@@ -22,6 +22,14 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Checkout action repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.action_repository }}
+        path: .github/actions/initialize-action
+    - name: Make scripts executable
+      shell: bash
+      run: chmod +x .github/actions/initialize-action/scripts/*.sh
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
@@ -49,7 +57,7 @@ runs:
         echo ${{ steps.files.outputs.all_changed_files }} | sed -E 's/ /\n/g' > modified_files.txt
         echo "## Modified Files"
         cat modified_files.txt
-        cat modified_files.txt | ./scripts/parse_file_list_for_projects.sh > project_list.txt
+        cat modified_files.txt | ./.github/actions/initialize-action/scripts/parse_file_list_for_projects.sh > project_list.txt
       env:
         PROJECT_ROOT: ${{ inputs.project-root }}
     - name: Set Dynamic Matrix
@@ -58,7 +66,7 @@ runs:
       run: |
         echo "## Project List"
         cat project_list.txt
-        matrixStringifiedObject="$(cat project_list.txt | ./scripts/generate_matrix.sh)"
+        matrixStringifiedObject="$(cat project_list.txt | ./.github/actions/initialize-action/scripts/generate_matrix.sh)"
         echo "## Matrix Object"
         echo "$matrixStringifiedObject"
         echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
