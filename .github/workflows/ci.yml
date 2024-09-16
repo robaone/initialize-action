@@ -1,0 +1,21 @@
+name: Initialize Action
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - feature/*
+      - main
+
+jobs:
+  build:
+    name: Build Artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zip scripts
+        run: |
+          zip scripts.zip scripts/*.sh
