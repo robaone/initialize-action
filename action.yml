@@ -27,6 +27,11 @@ runs:
       with:
         repository: robaone/initialize-action
         path: .github/actions/initialize-action
+        ref: v0.1.3
+    - name: List files
+      run: |
+        env
+        ls $GITHUB_WORKSPACE/.github/actions/initialize-action
     - name: Make scripts executable
       shell: bash
       run: chmod +x .github/actions/initialize-action/scripts/*.sh
