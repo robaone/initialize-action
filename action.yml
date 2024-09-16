@@ -62,6 +62,7 @@ runs:
         echo ${{ steps.files.outputs.all_changed_files }} | sed -E 's/ /\n/g' > modified_files.txt
         echo "## Modified Files"
         cat modified_files.txt
+        ls -l $GITHUB_WORKSPACE/.github/actions/initialize-action/scripts/parse_file_list_for_projects.sh
         cat modified_files.txt | $GITHUB_WORKSPACE/.github/actions/initialize-action/scripts/parse_file_list_for_projects.sh > project_list.txt
       env:
         PROJECT_ROOT: ${{ inputs.project-root }}
