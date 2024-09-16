@@ -26,15 +26,8 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: robaone/initialize-action
-        path: .github/actions/initialize-action
+        path: ../initialize-action
         ref: v0.1.5
-    - name: List files
-      shell: bash
-      run: |
-        ls $GITHUB_WORKSPACE/.github/actions/initialize-action/scripts
-    - name: Make scripts executable
-      shell: bash
-      run: chmod +x $GITHUB_WORKSPACE/.github/actions/initialize-action/scripts/*.sh
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
@@ -62,8 +55,7 @@ runs:
         echo ${{ steps.files.outputs.all_changed_files }} | sed -E 's/ /\n/g' > modified_files.txt
         echo "## Modified Files"
         cat modified_files.txt
-        ls -l $GITHUB_WORKSPACE/.github/actions/initialize-action/scripts/parse_file_list_for_projects.sh
-        cat modified_files.txt | $GITHUB_WORKSPACE/.github/actions/initialize-action/scripts/parse_file_list_for_projects.sh > project_list.txt
+        cat modified_files.txt | ../initialize-action/scripts/parse_file_list_for_projects.sh > project_list.txt
       env:
         PROJECT_ROOT: ${{ inputs.project-root }}
     - name: Set Dynamic Matrix
@@ -72,7 +64,7 @@ runs:
       run: |
         echo "## Project List"
         cat project_list.txt
-        matrixStringifiedObject="$(cat project_list.txt | $GITHUB_WORKSPACE/.github/actions/initialize-action/scripts/generate_matrix.sh)"
+        matrixStringifiedObject="$(cat project_list.txt | ../initialize-action/scripts/generate_matrix.sh)"
         echo "## Matrix Object"
         echo "$matrixStringifiedObject"
         echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
