@@ -31,6 +31,7 @@ runs:
         repository: robaone/source
         run-id: 10897300425
     - name: Unzip scripts
+      shell: bash
       run: |
         unzip scripts.zip
       working-directory: .github/actions/initialize-action
