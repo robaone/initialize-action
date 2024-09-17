@@ -29,6 +29,7 @@ runs:
         name: scripts
         path: .github/actions/initialize-action
         repository: robaone/source
+        github-token: ${{ github.token }}
         run-id: 10897300425
     - name: Unzip scripts
       shell: bash
