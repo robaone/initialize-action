@@ -15,6 +15,7 @@ outputs:
     description: "List of changed files"
     value: ${{ steps.files.outputs.all_changed_files }}
 
+
 runs:
   using: "composite"
   steps:
@@ -22,6 +23,17 @@ runs:
       uses: styfle/cancel-workflow-action@0.12.1
       with:
         access_token: ${{ github.token }}
+    - name: Download Scripts
+      uses: actions/download-artifact@v4
+      with:
+        name: scripts
+        path: .github/actions/initialize-action
+        repository: robaone/source
+        run-id: 10897300425
+    - name: Unzip scripts
+      run: |
+        unzip scripts.zip
+      working-directory: .github/actions/initialize-action
     - id: files
       uses: tj-actions/changed-files@v45.0.0
     - name: List files modified
@@ -31,7 +43,7 @@ runs:
         echo ${{ steps.files.outputs.all_changed_files }} | sed -E 's/ /\n/g' > modified_files.txt
         echo "## Modified Files"
         cat modified_files.txt
-        cat modified_files.txt | parse_file_list_for_projects.sh > project_list.txt
+        cat modified_files.txt | .github/actions/initialize-action/scripts/parse_file_list_for_projects.sh > project_list.txt
       env:
         PROJECT_ROOT: ${{ inputs.project-root }}
     - name: Set Dynamic Matrix
@@ -40,7 +52,7 @@ runs:
       run: |
         echo "## Project List"
         cat project_list.txt
-        matrixStringifiedObject="$(cat project_list.txt | generate_matrix.sh)"
+        matrixStringifiedObject="$(cat project_list.txt | .github/actions/initialize-action/scripts/generate_matrix.sh)"
         echo "## Matrix Object"
         echo "$matrixStringifiedObject"
         echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
