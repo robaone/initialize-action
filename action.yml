@@ -31,6 +31,8 @@ runs:
     - name: Download Scripts
       shell: bash
       run: |
+        mkdir -p .github/actions
+        cd .github/actions
         wget https://github.com/robaone/initialize-action/archive/refs/tags/v${{ inputs.script-version }}.zip -O scripts.zip
     - name: Unzip scripts
       shell: bash
