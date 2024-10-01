@@ -19,13 +19,15 @@ jobs:
     needs: [call-initialize]
     strategy:
       matrix: ${{ fromJson(needs.call-initialize.outputs.matrix) }}
+    working-directory: projects/${{ matrix.project }}
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       
       - name: Run Tests
         run: |
           npm run test
-    # ... rest of the job remains the same
+      # ... rest of the job remains the same
 
   feature-tests:
     needs: [call-initialize]
