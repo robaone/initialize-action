@@ -1,0 +1,10 @@
+{
+  "name": "initialize-actino",
+  "version": "1.0.0",
+  "description": "A Github action that sets up a mono repo workflow",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ansel Robateau"
+}
+
