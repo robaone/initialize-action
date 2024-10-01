@@ -64,6 +64,3 @@ runs:
         echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
       env:
         PROJECT_ROOT: ${{ inputs.project-root }}
-  outputs:
-    matrix: ${{ steps.setmatrix.outputs.matrix }}
-    files: ${{ steps.files.outputs.all_changed_files }}
