@@ -22,8 +22,6 @@ outputs:
 
 runs:
   using: "composite"
-  env:
-    SCRIPT_VERSION: "0.3.0"
   steps:
     - name: Cancel Previous Runs
       if: ${{ github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/main' }}
