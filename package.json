@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A Github action that sets up a mono repo workflow",
   "scripts": {
-    "test": "./scripts/tests/parse_file_list_for_projects_test.sh scripts/parse_file_list_for_projects.sh && ./scripts/tests/build_depends_project_list_test.sh scripts/build_depends_project_list.sh"
+    "test": "./scripts/tests/parse_file_list_for_projects_test.sh scripts/parse_file_list_for_projects.sh && ./scripts/tests/build_depends_project_list_test.sh scripts/build_depends_project_list.sh && ./scripts/tests/generate_matrix_test.sh scripts/generate_matrix.sh"
   },
   "author": "Ansel Robateau"
 }
