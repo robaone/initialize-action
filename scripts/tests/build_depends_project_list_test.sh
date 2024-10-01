@@ -22,6 +22,7 @@ function beforeEach {
     export MOCK_TRACKING_FILE=$(mktemp)
     export FIND_PATH="$SCRIPT_DIR/mock_cmd.sh"
     export CAT_PATH="$SCRIPT_DIR/mock_cmd.sh"
+    export PROJECT_ROOT=projects
 }
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
