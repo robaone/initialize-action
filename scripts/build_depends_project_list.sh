@@ -12,10 +12,12 @@ if [ "$CAT_PATH" == "" ]; then
   CAT_PATH="$(which cat)"
 fi
 
-# Get the list of projects
+function git_root() {
+  git rev-parse --show-toplevel
+}
 
 function list_projects_with_depends_file() {
-  PROJECTS_FOLDER="$SCRIPT_DIR/../$PROJECT_ROOT"
+  PROJECTS_FOLDER="$(git_root)/$PROJECT_ROOT"
   for f in $($FIND_PATH $PROJECTS_FOLDER -name .depends)
   do
     echo $(basename $(dirname $f))
@@ -27,7 +29,7 @@ for project in $(list_projects_with_depends_file)
 do
   for file in $FILES
   do
-    for depends_path in $($CAT_PATH "$SCRIPT_DIR/../$PROJECT_ROOT/$project/.depends")
+    for depends_path in $($CAT_PATH "$(git_root)/$PROJECT_ROOT/$project/.depends")
     do
       DEPENDS_PATH_PATTERN=$(echo $depends_path | sed 's/\./\\./g' | sed 's/\*/.*/g')
       if [[ $file =~ $DEPENDS_PATH_PATTERN ]]; then

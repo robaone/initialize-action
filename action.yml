@@ -20,6 +20,7 @@ runs:
   using: "composite"
   steps:
     - name: Cancel Previous Runs
+      if: ${{ github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/main' }}
       uses: styfle/cancel-workflow-action@0.12.1
       with:
         access_token: ${{ github.token }}
