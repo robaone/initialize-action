@@ -13,13 +13,35 @@ if [ "$INPUT" == "" ]; then
   exit 1
 fi
 
+if [ "$PROJECT_ROOT" == "" ]; then
+  PROJECT_ROOT=.
+fi
+
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
 if [ "$BUILD_DEPENDS_PATH" == "" ]; then
   BUILD_DEPENDS_PATH="$SCRIPT_DIR/build_depends_project_list.sh"
 fi
 
-if [ ! -d "$PROJECT_ROOT" ]; then
+function folder_exists() {
+  local FOLDER=$1
+  if [ "$FOLDER_EXISTS_CMD" != "" ]; then
+    $FOLDER_EXISTS_CMD "$FOLDER"
+    return $?
+  else
+    if [ -d "$FOLDER" ]; then
+      echo 1
+    else
+      echo 0
+    fi
+  fi
+}
+
+function git_root() {
+  git rev-parse --show-toplevel
+}
+
+if [ "$(folder_exists "$(git_root)/$PROJECT_ROOT")" == "0" ]; then
   exit 0
 fi
 
@@ -34,29 +56,11 @@ fi
 if [ "$PROJECT_ROOT" == "." ]; then
   DEPENDS_FOLDERS="$(echo "$INPUT" | $BUILD_DEPENDS_PATH | awk '{print $1}')"
 else
-  DEPENDS_FOLDERS="$(echo "$INPUT" | $BUILD_DEPENDS_PATH | awk '{print "$PROJECT_ROOT/" $1}')"
+  DEPENDS_FOLDERS="$(echo "$INPUT" | $BUILD_DEPENDS_PATH | awk '{print "'$PROJECT_ROOT'/" $1}')"
 fi
 
 # combine with FOLDERS and remove duplicates
 FOLDERS="$(echo "$FOLDERS $DEPENDS_FOLDERS" | tr ' ' '\n' | sort -u)"
-
-# get list of folders that don't exist
-# for each folder in FOLDERS
-#  if folder doesn't exist
-#    add to list
-function folder_exists() {
-  local FOLDER=$1
-  if [ "$FOLDER_EXISTS_CMD" != "" ]; then
-    $FOLDER_EXISTS_CMD "$FOLDER"
-    return $?
-  else
-    if [ -d "$FOLDER" ]; then
-      echo 1
-    else
-      echo 0
-    fi
-  fi
-}
 
 if [ "$FOLDERS_THAT_DONT_EXIST" == "" ]; then
   for FOLDER in $FOLDERS

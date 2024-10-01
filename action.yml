@@ -2,10 +2,6 @@ name: 'Initialize Action'
 description: 'Sets up the environment, cancels previous runs, and generates a project matrix'
 
 inputs:
-  node-version:
-    description: 'Node.js version to use'
-    required: false
-    default: '20.x'
   project-root:
     description: 'Project root folder'
     required: false
@@ -19,31 +15,30 @@ outputs:
     description: "List of changed files"
     value: ${{ steps.files.outputs.all_changed_files }}
 
-env:
-  PROJECT_ROOT: ${{ inputs.project-root }}
+
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ inputs.node-version }}
-    
     - name: Cancel Previous Runs
+      if: ${{ github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/main' }}
       uses: styfle/cancel-workflow-action@0.12.1
       with:
         access_token: ${{ github.token }}
-    
-    - name: Print all github variables
+    - name: Download Scripts
+      uses: actions/download-artifact@v4
+      with:
+        name: scripts
+        path: .github/actions/initialize-action
+        repository: robaone/source
+        github-token: ${{ github.token }}
+        run-id: 10897300425
+    - name: Unzip scripts
       shell: bash
-      run: echo "$JSON"
-      env:
-        JSON: ${{ toJson(github) }}
-    
-    - uses: actions/checkout@v4
-    
+      run: |
+        unzip scripts.zip
+      working-directory: .github/actions/initialize-action
     - id: files
       uses: tj-actions/changed-files@v45.0.0
-    
     - name: List files modified
       id: project_list
       shell: bash
@@ -51,15 +46,18 @@ runs:
         echo ${{ steps.files.outputs.all_changed_files }} | sed -E 's/ /\n/g' > modified_files.txt
         echo "## Modified Files"
         cat modified_files.txt
-        cat modified_files.txt | ./scripts/parse_file_list_for_projects.sh > project_list.txt
-
+        cat modified_files.txt | .github/actions/initialize-action/scripts/parse_file_list_for_projects.sh > project_list.txt
+      env:
+        PROJECT_ROOT: ${{ inputs.project-root }}
     - name: Set Dynamic Matrix
       id: setmatrix
       shell: bash
       run: |
         echo "## Project List"
         cat project_list.txt
-        matrixStringifiedObject="$(cat project_list.txt | ./scripts/generate_matrix.sh)"
+        matrixStringifiedObject="$(cat project_list.txt | .github/actions/initialize-action/scripts/generate_matrix.sh)"
         echo "## Matrix Object"
         echo "$matrixStringifiedObject"
         echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+      env:
+        PROJECT_ROOT: ${{ inputs.project-root }}

@@ -1,4 +1,4 @@
-name: CI Workflow
+name: CI/CD
 
 on:
   push:
@@ -19,6 +19,12 @@ jobs:
     needs: [call-initialize]
     strategy:
       matrix: ${{ fromJson(needs.call-initialize.outputs.matrix) }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Run Tests
+        run: |
+          npm run test
     # ... rest of the job remains the same
 
   feature-tests:
@@ -28,3 +34,4 @@ jobs:
     # ... rest of the job remains the same
 
   # ... other jobs remain the same, but update 'needs' and matrix references
+
