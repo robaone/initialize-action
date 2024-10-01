@@ -18,6 +18,8 @@ outputs:
 
 runs:
   using: "composite"
+  env:
+    SCRIPT_VERSION: "0.3.0"
   steps:
     - name: Cancel Previous Runs
       if: ${{ github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/main' }}
@@ -25,18 +27,15 @@ runs:
       with:
         access_token: ${{ github.token }}
     - name: Download Scripts
-      uses: actions/download-artifact@v4
-      with:
-        name: scripts
-        path: .github/actions/initialize-action
-        repository: robaone/source
-        github-token: ${{ github.token }}
-        run-id: 10897300425
+      shell: bash
+      run: |
+        wget https://github.com/robaone/initialize-action/archive/refs/tags/v${SCRIPT_VERSION}.zip -O scripts.zip
     - name: Unzip scripts
       shell: bash
       run: |
-        unzip scripts.zip
-      working-directory: .github/actions/initialize-action
+        unzip scripts.zip '*/scripts/*.sh' 
+        rm scripts.zip
+      working-directory: .github/actions
     - id: files
       uses: tj-actions/changed-files@v45.0.0
     - name: List files modified
@@ -46,7 +45,7 @@ runs:
         echo ${{ steps.files.outputs.all_changed_files }} | sed -E 's/ /\n/g' > modified_files.txt
         echo "## Modified Files"
         cat modified_files.txt
-        cat modified_files.txt | .github/actions/initialize-action/scripts/parse_file_list_for_projects.sh > project_list.txt
+        cat modified_files.txt | .github/actions/initialize-action-${SCRIPT_VERSION}/scripts/parse_file_list_for_projects.sh > project_list.txt
       env:
         PROJECT_ROOT: ${{ inputs.project-root }}
     - name: Set Dynamic Matrix
@@ -55,7 +54,7 @@ runs:
       run: |
         echo "## Project List"
         cat project_list.txt
-        matrixStringifiedObject="$(cat project_list.txt | .github/actions/initialize-action/scripts/generate_matrix.sh)"
+        matrixStringifiedObject="$(cat project_list.txt | .github/actions/initialize-action-${SCRIPT_VERSION}/scripts/generate_matrix.sh)"
         echo "## Matrix Object"
         echo "$matrixStringifiedObject"
         echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
