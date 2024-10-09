@@ -13,8 +13,14 @@ if [ "$INPUT" == "" ]; then
   exit 1
 fi
 
-if [ "$PROJECT_ROOT" == "" ]; then
-  PROJECT_ROOT=.
+if [ "$GIT_CMD" == "" ]; then
+  GIT_CMD=$(which git)
+fi
+
+if [ "$PROJECT_ROOT" == "" ] || [ "$PROJECT_ROOT" == "." ]; then
+  repository_root=$($GIT_CMD rev-parse --show-toplevel)
+  PROJECT_ROOT=$repository_root
+  USE_ROOT=true
 fi
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
@@ -38,22 +44,30 @@ function folder_exists() {
 }
 
 function git_root() {
-  git rev-parse --show-toplevel
+  $GIT_CMD rev-parse --show-toplevel
 }
 
-if [ "$(folder_exists "$(git_root)/$PROJECT_ROOT")" == "0" ]; then
+if [ "$USE_ROOT" != "true" ] && [ "$(folder_exists "$(git_root)/$PROJECT_ROOT")" == "0" ]; then
   exit 0
 fi
 
 # for each line get the first folder name
-if [ "$PROJECT_ROOT" == "." ]; then
-  FOLDERS="$(echo "$INPUT" | sed 's/\// /g' | awk '{print $1}' | sort | uniq)"
+if [ "$USE_ROOT" == "true" ]; then
+  BASE_NAMES="$(echo "$INPUT" | sed 's/\// /g' | awk '{print $1}' | sort | uniq)"
+  # remove files from the FOLDERS list
+  for NAME in $BASE_NAMES
+  do
+    # check if the name is a folder
+    if [ "$(folder_exists "$NAME")" != "0" ]; then
+      FOLDERS="$FOLDERS $NAME"
+    fi
+  done
 else
   FOLDERS="$(echo "$INPUT" | grep ''$PROJECT_ROOT'[/]' | sed 's/\// /g' | awk '{print $1 "/" $2}' | sort | uniq)"
 fi
 
 # get list of folders triggered by dependencies
-if [ "$PROJECT_ROOT" == "." ]; then
+if [ "$USE_ROOT" == "true" ]; then
   DEPENDS_FOLDERS="$(echo "$INPUT" | $BUILD_DEPENDS_PATH | awk '{print $1}')"
 else
   DEPENDS_FOLDERS="$(echo "$INPUT" | $BUILD_DEPENDS_PATH | awk '{print "'$PROJECT_ROOT'/" $1}')"
@@ -71,7 +85,7 @@ if [ "$FOLDERS_THAT_DONT_EXIST" == "" ]; then
   done
 fi
 
-if [ "$PROJECT_ROOT" == "." ]; then
+if [ "$USE_ROOT" == "true" ]; then
   IGNORE_LIST="$IGNORE_LIST .github"
 fi
 IGNORE_LIST="$IGNORE_LIST $FOLDERS_THAT_DONT_EXIST"
@@ -97,7 +111,7 @@ do
 done
 
 # replace space with return character
-if [ "$PROJECT_ROOT" == "." ]; then
+if [ "$USE_ROOT" == "true" ]; then
   FOLDERS=$(echo $NEW_FOLDERS | sed 's/ /\n/g')
 else
   FOLDERS=$(echo $NEW_FOLDERS | sed 's/ /\n/g' | sed 's/^'$PROJECT_ROOT'\///g')
