@@ -19,15 +19,21 @@ function assert_equals {
   fi
 }
 
-function beforeEach {
-    export MOCK_ARGUMENT_FILE="$(mktemp)"
-    export MOCK_TRACKING_FILE="$(mktemp)"
+function beforeAll {
     export FOLDER_EXISTS_CMD=$SCRIPT_DIR/mock_cmd.sh
     export BUILD_DEPENDS_PATH=$SCRIPT_DIR/mock_cmd.sh
+    export GIT_CMD=$SCRIPT_DIR/mock_cmd.sh
     export PROJECT_ROOT=projects
 }
 
+function beforeEach {
+    export MOCK_ARGUMENT_FILE="$(mktemp)"
+    export MOCK_TRACKING_FILE="$(mktemp)"
+}
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+beforeAll
 
 echo Scenario: No Files
 beforeEach
@@ -60,7 +66,8 @@ README.md"
 EXPECTED_RESULT="GithubWebhook
 Other"
 export MOCK_RESPONSES='[
-  {"name":"project root folder exists"},
+  {"name":"repository root","stdout":"/home/git/repo"},
+  {"name":"project root folder exists","stdout":"1"},
   {"name":"dependency folders"},
   {"name":"folder 1 exists"},
   {"name":"folder 2 exists"}
@@ -90,11 +97,52 @@ EXPECTED_RESULT="GithubWebhook
 Other
 project-with-dependency"
 export MOCK_RESPONSES='[
+  {"name":"repository root","stdout":"/home/git/repo"},
   {"name":"project root folder exists"},
   {"name":"dependency folders","stdout":"project-with-dependency"},
   {"name":"folder 1 exists"},
   {"name":"folder 2 exists"},
   {"name":"folder 3 exists"}
+]'
+
+# WHEN
+
+ACTUAL_RESULT="$(echo "$INPUT" | $CMD)"
+
+# THEN
+
+assert_equals "0" "$?"
+assert_equals "$EXPECTED_RESULT" "$ACTUAL_RESULT"
+
+echo Scenario: Project files with dependencies where project root is .
+beforeEach
+
+# GIVEN
+
+export PROJECT_ROOT="."
+INPUT=".github/workflows/git-flow.yml
+GithubWebhook/README.md
+GithubWebhook/src/index.ts
+Other/README.md
+docs/adr/0001-architecture-decision-record.md
+README.md"
+EXPECTED_RESULT="GithubWebhook
+Other
+docs
+project-with-dependency"
+export MOCK_RESPONSES='[
+  {"name":"repository root","stdout":"/home/git/repo"},
+  {"name":"folder 1 exists"},
+  {"name":"folder 2 exists"},
+  {"name":"folder 3 exists"},
+  {"name":"README.md is not a folder","stdout":"0"},
+  {"name":"folder 4 exists"},
+  {"name":"dependency folders","stdout":"project-with-dependency"},
+  {"name":"folder 1 exists"},
+  {"name":"folder 2 exists"},
+  {"name":"folder 3 exists"},
+  {"name":"folder 4 exists"},
+  {"name":"folder 5 exists"}
 ]'
 
 # WHEN
