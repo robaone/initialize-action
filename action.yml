@@ -6,6 +6,10 @@ inputs:
     description: 'Project root folder'
     required: false
     default: '.'
+  script-version:
+    description: 'Script version'
+    required: false
+    default: '0.3.1'
 
 outputs:
   matrix:
@@ -29,7 +33,9 @@ runs:
     - name: Download Scripts
       shell: bash
       run: |
-        wget https://github.com/robaone/initialize-action/archive/refs/tags/v${SCRIPT_VERSION}.zip -O scripts.zip
+        mkdir -p .github/actions
+        cd .github/actions
+        wget https://github.com/robaone/initialize-action/archive/refs/tags/v${{ inputs.script-version }}.zip -O scripts.zip
     - name: Unzip scripts
       shell: bash
       run: |
@@ -45,7 +51,7 @@ runs:
         echo ${{ steps.files.outputs.all_changed_files }} | sed -E 's/ /\n/g' > modified_files.txt
         echo "## Modified Files"
         cat modified_files.txt
-        cat modified_files.txt | .github/actions/initialize-action-${SCRIPT_VERSION}/scripts/parse_file_list_for_projects.sh > project_list.txt
+        cat modified_files.txt | .github/actions/initialize-action-${{ inputs.script-version }}/scripts/parse_file_list_for_projects.sh > project_list.txt
       env:
         PROJECT_ROOT: ${{ inputs.project-root }}
     - name: Set Dynamic Matrix
@@ -54,7 +60,7 @@ runs:
       run: |
         echo "## Project List"
         cat project_list.txt
-        matrixStringifiedObject="$(cat project_list.txt | .github/actions/initialize-action-${SCRIPT_VERSION}/scripts/generate_matrix.sh)"
+        matrixStringifiedObject="$(cat project_list.txt | .github/actions/initialize-action-${{ inputs.script-version }}/scripts/generate_matrix.sh)"
         echo "## Matrix Object"
         echo "$matrixStringifiedObject"
         echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
