@@ -49,3 +49,51 @@ ACTUAL_RESULT="$(echo "$FILES" | $CMD)"
 # THEN
 
 assert_equals "$EXPECTED_RESULTS" "$ACTUAL_RESULT"
+
+echo Scenario: Build the list of projects that depend on the given files with empty project_root
+beforeEach
+
+# GIVEN
+
+export PROJECT_ROOT=
+PROJECT2_DEPENDS_CONTENTS="project1/*"
+export MOCK_RESPONSES='[
+  {"stdout":"project2/.depends"},
+  {"stdout":"'$PROJECT2_DEPENDS_CONTENTS'"}
+]'
+
+FILES="project1/file1.txt
+README.md"
+EXPECTED_RESULTS="project2"
+
+# WHEN
+
+ACTUAL_RESULT="$(echo "$FILES" | $CMD)"
+
+# THEN
+
+assert_equals "$EXPECTED_RESULTS" "$ACTUAL_RESULT"
+
+echo Scenario: Build the list of projects that depend on the given files with project_root = .
+beforeEach
+
+# GIVEN
+
+export PROJECT_ROOT=.
+PROJECT2_DEPENDS_CONTENTS="project1/*"
+export MOCK_RESPONSES='[
+  {"stdout":"project2/.depends"},
+  {"stdout":"'$PROJECT2_DEPENDS_CONTENTS'"}
+]'
+
+FILES="project1/file1.txt
+README.md"
+EXPECTED_RESULTS="project2"
+
+# WHEN
+
+ACTUAL_RESULT="$(echo "$FILES" | $CMD)"
+
+# THEN
+
+assert_equals "$EXPECTED_RESULTS" "$ACTUAL_RESULT"
