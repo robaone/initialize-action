@@ -17,10 +17,12 @@ if [ "$GIT_CMD" == "" ]; then
   GIT_CMD=$(which git)
 fi
 
+repository_root=$($GIT_CMD rev-parse --show-toplevel)
 if [ "$PROJECT_ROOT" == "" ] || [ "$PROJECT_ROOT" == "." ]; then
-  repository_root=$($GIT_CMD rev-parse --show-toplevel)
-  PROJECT_ROOT=$repository_root
+  PROJECT_PARENT_PATH=$repository_root
   USE_ROOT=true
+else
+  PROJECT_PARENT_PATH=$repository_root/$PROJECT_ROOT
 fi
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
@@ -47,7 +49,7 @@ function git_root() {
   $GIT_CMD rev-parse --show-toplevel
 }
 
-if [ "$USE_ROOT" != "true" ] && [ "$(folder_exists "$(git_root)/$PROJECT_ROOT")" == "0" ]; then
+if [ "$USE_ROOT" != "true" ] && [ "$(folder_exists "$$PROJECT_PARENT_PATH")" == "0" ]; then
   exit 0
 fi
 
