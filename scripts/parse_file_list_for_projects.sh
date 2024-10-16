@@ -49,7 +49,7 @@ function git_root() {
   $GIT_CMD rev-parse --show-toplevel
 }
 
-if [ "$USE_ROOT" != "true" ] && [ "$(folder_exists "$$PROJECT_PARENT_PATH")" == "0" ]; then
+if [ "$USE_ROOT" != "true" ] && [ "$(folder_exists "$PROJECT_PARENT_PATH")" == "0" ]; then
   exit 0
 fi
 
