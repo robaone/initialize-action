@@ -6,6 +6,8 @@ on:
       - main
   pull_request:
     types: [synchronize]
+  release:
+    types: [created]
 
 jobs:
   unit-tests:
@@ -18,3 +20,15 @@ jobs:
       - name: Run Tests
         run: |
           npm run test
+  deploy-to-production:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Deploy Application
+        run: |
+          # Add commands here for deploying your application
+          echo "Deploying application..."
