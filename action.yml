@@ -9,7 +9,7 @@ inputs:
   script-version:
     description: 'Script version'
     required: false
-    default: '0.3.1'
+    default: '0.5.1'
 
 outputs:
   matrix:
@@ -22,8 +22,6 @@ outputs:
 
 runs:
   using: "composite"
-  env:
-    SCRIPT_VERSION: "0.4.0"
   steps:
     - name: Cancel Previous Runs
       if: ${{ github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/main' }}
