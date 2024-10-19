@@ -93,3 +93,33 @@ jobs:
       - uses: actions/checkout@v4
 ```
 
+## Inter Project dependencies
+
+This GitHub Action uses a custom dependency management system based on .depends files. The system is designed to identify which projects are affected by changes to specific files in your repository.
+
+### How It Works
+
+1. The action searches for `.depends` files in your repository.
+1. Each `.depends` file should be located in a project directory and contain a list of file paths or patterns that the project depends on.
+1. When files are changed in a pull request or push, the action checks if any of these files match the patterns in the `.depends` files.
+1. If a match is found, the corresponding project is identified as affected by the change.
+
+### .depends File Format
+
+Each line in a `.depends` file should contain a file path or pattern relative to the repository root. You can use wildcards (`*`) in these patterns.
+
+Example `.depends` file:
+
+```
+src/shared/*.js
+config/database.yml
+*.gemspec
+```
+
+### Usage
+
+Usage
+
+1. Create a `.depends` file in each project directory that you want to track dependencies for.
+1. List the files or patterns that the project depends on in the `.depends` file.
+1. When you run this action, it will output the names of projects affected by the changes in your commit or pull request.
