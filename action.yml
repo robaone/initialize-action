@@ -1,6 +1,10 @@
 name: 'Initialize Action'
 description: 'Sets up the environment, cancels previous runs, and generates a project matrix'
 
+branding:
+  icon: 'chevron-right'
+  color: 'gray-dark'
+
 inputs:
   project-root:
     description: 'Project root folder'
