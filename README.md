@@ -37,10 +37,9 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Initialize Action
-        uses: your-username/initialize-action@v0.1
+        uses: robaone/initialize-action@v0.6.0
         with:
           project-root: 'your/project/root'
-          script-version: '0.5.1'
       
       # Additional steps to use the outputs can go here
 ```
@@ -77,10 +76,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: initialize
         id: initialize
-        uses: robaone/initialize-action@v0.3.7
+        uses: robaone/initialize-action@v0.6.0
         with:
           project-root: .
-          script-version: 0.5.1
     outputs:
       matrix: ${{ steps.initialize.outputs.matrix }}
   unit-tests:
