@@ -1,5 +1,7 @@
 # initialize-action
 
+https://youtu.be/I2zRjv3GWlc
+
 ## Description
 
 The **Initialize Action** sets up the environment for your workflow, cancels previous runs, and generates a project matrix for subsequent jobs. This action is designed to streamline your CI/CD pipeline by managing previous workflow executions and creating a dynamic project matrix based on changed files.
