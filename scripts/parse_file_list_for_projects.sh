@@ -9,8 +9,7 @@
 INPUT="$(cat)"
 
 if [ "$INPUT" == "" ]; then
-  echo "You must provide a list of files"
-  exit 1
+  exit 0
 fi
 
 if [ "$GIT_CMD" == "" ]; then
