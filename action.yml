@@ -13,7 +13,7 @@ inputs:
   script-version:
     description: 'Script version'
     required: false
-    default: '0.5.1'
+    default: '0.6.1'
 
 outputs:
   matrix:
