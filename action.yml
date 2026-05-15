@@ -45,7 +45,7 @@ runs:
         rm scripts.zip
       working-directory: .github/actions
     - id: files
-      uses: tj-actions/changed-files@v45.0.0
+      uses: tj-actions/changed-files@v47.0.6
     - name: List files modified
       id: project_list
       shell: bash
