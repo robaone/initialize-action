@@ -81,7 +81,7 @@ if [ "$USE_ROOT" == "true" ]; then
     fi
   done
 elif [ "$IS_PATTERN" == "true" ]; then
-  FOLDERS="$(echo "$INPUT" | grep -E "^($PROJECT_ROOT)/" | cut -d/ -f1,2 | sort -u)"
+  FOLDERS="$(echo "$INPUT" | grep -oE "^($PROJECT_ROOT)/[^/]+" | sort -u)"
 else
   FOLDERS="$(echo "$INPUT" | grep ''$PROJECT_ROOT'[/]' | sed 's/\// /g' | awk '{print $1 "/" $2}' | sort | uniq)"
 fi
