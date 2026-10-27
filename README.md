@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Initialize Action
-        uses: robaone/initialize-action@v0.6.0
+        uses: robaone/initialize-action@v0.7.0
         with:
           project-root: 'your/project/root'
       
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: initialize
         id: initialize
-        uses: robaone/initialize-action@v0.6.0
+        uses: robaone/initialize-action@v0.7.0
         with:
           project-root: .
     outputs:
