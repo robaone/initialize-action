@@ -11,7 +11,7 @@ The **Initialize Action** sets up the environment for your workflow, cancels pre
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
 | `project-root` | Project root folder | No | `.` |
-| `script-version` | Version of the script to use | No | `0.5.1` |
+| `script-version` | Version of the script to use | No | `0.7.0` |
 
 ## Outputs
 
