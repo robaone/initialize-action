@@ -41,7 +41,7 @@ beforeEach
 # GIVEN
 
 INPUT=""
-EXPECTED_RESULT="You must provide a list of files"
+EXPECTED_RESULT=""
 
 # WHEN
 
@@ -49,7 +49,7 @@ ACTUAL_RESULT="$(echo "$INPUT" | $CMD)"
 
 # THEN
 
-assert_equals "1" "$?"
+assert_equals "0" "$?"
 assert_equals "$EXPECTED_RESULT" "$ACTUAL_RESULT"
 
 echo Scenario: Project files
@@ -143,6 +143,90 @@ export MOCK_RESPONSES='[
   {"name":"folder 3 exists"},
   {"name":"folder 4 exists"},
   {"name":"folder 5 exists"}
+]'
+
+# WHEN
+
+ACTUAL_RESULT="$(echo "$INPUT" | $CMD)"
+
+# THEN
+
+assert_equals "0" "$?"
+assert_equals "$EXPECTED_RESULT" "$ACTUAL_RESULT"
+
+echo Scenario: Pattern project root with multiple directories
+beforeEach
+
+# GIVEN
+
+export PROJECT_ROOT="(services|tools)"
+INPUT=".github/workflows/git-flow.yml
+services/tango/main.go
+services/tango/pkg/sub/file.go
+services/README.md
+tools/sugarcane/pom.xml
+docs/adr/0001-architecture-decision-record.md
+README.md"
+EXPECTED_RESULT="services/packrat
+services/tango
+tools/sugarcane"
+export MOCK_RESPONSES='[
+  {"name":"repository root","stdout":"/home/git/repo"},
+  {"name":"dependency folders","stdout":"services/packrat"},
+  {"name":"services/README.md is not a folder","stdout":"0"},
+  {"name":"services/packrat exists"},
+  {"name":"services/tango exists"},
+  {"name":"tools/sugarcane exists"}
+]'
+
+# WHEN
+
+ACTUAL_RESULT="$(echo "$INPUT" | $CMD)"
+
+# THEN
+
+assert_equals "0" "$?"
+assert_equals "$EXPECTED_RESULT" "$ACTUAL_RESULT"
+
+echo Scenario: Pattern project root without parentheses
+beforeEach
+
+# GIVEN
+
+export PROJECT_ROOT="services|tools"
+INPUT="services/tango/main.go
+tools/sugarcane/pom.xml"
+EXPECTED_RESULT="services/tango
+tools/sugarcane"
+export MOCK_RESPONSES='[
+  {"name":"repository root","stdout":"/home/git/repo"},
+  {"name":"dependency folders"},
+  {"name":"services/tango exists"},
+  {"name":"tools/sugarcane exists"}
+]'
+
+# WHEN
+
+ACTUAL_RESULT="$(echo "$INPUT" | $CMD)"
+
+# THEN
+
+assert_equals "0" "$?"
+assert_equals "$EXPECTED_RESULT" "$ACTUAL_RESULT"
+
+echo Scenario: Pattern project root with no matching projects
+beforeEach
+
+# GIVEN
+
+export PROJECT_ROOT="(services|tools)"
+INPUT=".github/workflows/git-flow.yml
+docs/adr/0001-architecture-decision-record.md
+README.md"
+EXPECTED_RESULT=""
+export MOCK_RESPONSES='[
+  {"name":"repository root","stdout":"/home/git/repo"},
+  {"name":"dependency folders"}
 ]'
 
 # WHEN

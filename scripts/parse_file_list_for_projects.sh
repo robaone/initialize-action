@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LC_ALL=C
+
 # This script takes a list of files and returns the project names for those files
 
 # Example:
@@ -22,6 +24,21 @@ if [ "$PROJECT_ROOT" == "" ] || [ "$PROJECT_ROOT" == "." ]; then
   USE_ROOT=true
 else
   PROJECT_PARENT_PATH=$repository_root/$PROJECT_ROOT
+fi
+
+function is_pattern() {
+  local val="$1"
+  local regex_meta='[][()|*+?{}]'
+  if [[ "$val" =~ $regex_meta ]]; then
+    return 0
+  fi
+  return 1
+}
+
+IS_PATTERN=false
+if is_pattern "$PROJECT_ROOT"; then
+  IS_PATTERN=true
+  USE_ROOT=false
 fi
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
@@ -48,7 +65,7 @@ function git_root() {
   $GIT_CMD rev-parse --show-toplevel
 }
 
-if [ "$USE_ROOT" != "true" ] && [ "$(folder_exists "$PROJECT_PARENT_PATH")" == "0" ]; then
+if [ "$USE_ROOT" != "true" ] && [ "$IS_PATTERN" != "true" ] && [ "$(folder_exists "$PROJECT_PARENT_PATH")" == "0" ]; then
   exit 0
 fi
 
@@ -63,12 +80,16 @@ if [ "$USE_ROOT" == "true" ]; then
       FOLDERS="$FOLDERS $NAME"
     fi
   done
+elif [ "$IS_PATTERN" == "true" ]; then
+  FOLDERS="$(echo "$INPUT" | grep -oE "^($PROJECT_ROOT)/[^/]+" | sort -u)"
 else
   FOLDERS="$(echo "$INPUT" | grep ''$PROJECT_ROOT'[/]' | sed 's/\// /g' | awk '{print $1 "/" $2}' | sort | uniq)"
 fi
 
 # get list of folders triggered by dependencies
 if [ "$USE_ROOT" == "true" ]; then
+  DEPENDS_FOLDERS="$(echo "$INPUT" | $BUILD_DEPENDS_PATH | awk '{print $1}')"
+elif [ "$IS_PATTERN" == "true" ]; then
   DEPENDS_FOLDERS="$(echo "$INPUT" | $BUILD_DEPENDS_PATH | awk '{print $1}')"
 else
   DEPENDS_FOLDERS="$(echo "$INPUT" | $BUILD_DEPENDS_PATH | awk '{print "'$PROJECT_ROOT'/" $1}')"
@@ -113,6 +134,8 @@ done
 
 # replace space with return character
 if [ "$USE_ROOT" == "true" ]; then
+  FOLDERS=$(echo $NEW_FOLDERS | sed 's/ /\n/g')
+elif [ "$IS_PATTERN" == "true" ]; then
   FOLDERS=$(echo $NEW_FOLDERS | sed 's/ /\n/g')
 else
   FOLDERS=$(echo $NEW_FOLDERS | sed 's/ /\n/g' | sed 's/^'$PROJECT_ROOT'\///g')

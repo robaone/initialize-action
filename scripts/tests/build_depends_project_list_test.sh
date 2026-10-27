@@ -97,3 +97,53 @@ ACTUAL_RESULT="$(echo "$FILES" | $CMD)"
 # THEN
 
 assert_equals "$EXPECTED_RESULTS" "$ACTUAL_RESULT"
+
+echo Scenario: Build the list of projects that depend on given files with pattern project_root
+beforeEach
+
+# GIVEN
+
+export PROJECT_ROOT="(services|tools)"
+TANGO_DEPENDS_CONTENTS="shared/*"
+SUGARCANE_DEPENDS_CONTENTS="shared/*"
+export MOCK_RESPONSES='[
+  {"stdout":"services/tango/.depends\ntools/sugarcane/.depends\nother/lib/.depends"},
+  {"stdout":"'$TANGO_DEPENDS_CONTENTS'"},
+  {"stdout":"'$SUGARCANE_DEPENDS_CONTENTS'"}
+]'
+
+FILES="shared/common.go
+README.md"
+EXPECTED_RESULTS="services/tango
+tools/sugarcane"
+
+# WHEN
+
+ACTUAL_RESULT="$(echo "$FILES" | $CMD)"
+
+# THEN
+
+assert_equals "$EXPECTED_RESULTS" "$ACTUAL_RESULT"
+
+echo Scenario: Build the list of projects that depend on given files with pattern project_root without parens
+beforeEach
+
+# GIVEN
+
+export PROJECT_ROOT="services|tools"
+TANGO_DEPENDS_CONTENTS="shared/*"
+export MOCK_RESPONSES='[
+  {"stdout":"services/tango/.depends"},
+  {"stdout":"'$TANGO_DEPENDS_CONTENTS'"}
+]'
+
+FILES="shared/common.go"
+EXPECTED_RESULTS="services/tango"
+
+# WHEN
+
+ACTUAL_RESULT="$(echo "$FILES" | $CMD)"
+
+# THEN
+
+assert_equals "$EXPECTED_RESULTS" "$ACTUAL_RESULT"
